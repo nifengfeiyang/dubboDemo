@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace用于java代码调用时识别指定xml的mapper文件 -->
+
+<mapper namespace="UserinfoMapper">
+	
+	<select id="getNeedSpellUsers" resultType="com.pzdf.eqihua.ops.bean.NeedSpellUserBean" >
+		SELECT
+			UserID as userId,
+			CompID as compId,
+			Mobile as mobile,
+			`Name` as name,
+			FullSpell as fullSpell,
+			InitSpell as initSpell
+		FROM
+			qihua_userinfo
+		WHERE
+			CreateTime != UpdateTime
+	</select>
+	<select id="getNeedSpellUsers_count" resultType="int" >
+		SELECT
+			count(1) as num
+		FROM
+			qihua_userinfo
+		WHERE
+			CreateTime != UpdateTime
+	</select>
+	
+	<select id="getRepeatAccount" resultType="com.pzdf.eqihua.ops.bean.RepeatAccountUserBean" >
+		SELECT
+			a.UserID AS userId,
+			a.CompID AS compId,
+			a.Account AS account,
+			a.Mobile AS mobile,
+			a.`Name` AS name
+		FROM
+			qihua_userinfo a
+		JOIN qihua_userinfo b ON a.Account = b.Account
+		AND a.UserID != b.UserID
+		AND a.Deleted = 0
+		AND b.Deleted = 0
+		ORDER BY
+			a.Mobile
+	</select>
+	<select id="getRepeatAccount_count" resultType="int" >
+		SELECT
+			count(1) as num
+		FROM
+			qihua_userinfo a
+		JOIN qihua_userinfo b ON a.Account = b.Account
+		AND a.UserID != b.UserID
+		AND a.Deleted = 0
+		AND b.Deleted = 0
+	</select>
+	
+	<update id="updateUserSpell" parameterType="com.pzdf.eqihua.ops.bean.NeedSpellUserBean" >
+        UPDATE `qihua_userinfo`
+        <set>
+            <if test="fullSpell !=null">
+                `FullSpell` = #{fullSpell},
+            </if>
+            <if test="fullSpell !=null">
+                `InitSpell` = #{initSpell},
+            </if>
+            UpdateTime = now()
+        </set>
+        WHERE
+        `UserID` = #{userId}
+    </update>
+    
+   	<update id="updateUserAccount" parameterType="com.pzdf.eqihua.ops.bean.RepeatAccountUserBean" >
+        UPDATE `qihua_userinfo`
+        <set>
+            <if test="account !=null">
+                `Account` = #{account},
+            </if>
+            UpdateTime = now()
+        </set>
+        WHERE
+        `UserID` = #{userId}
+    </update>
+    
+    
+	<select id="getNeedDealCreateServiceInfoBeans" resultType="com.pzdf.eqihua.ops.bean.CreateServiceInfoBean" >
+		SELECT
+			a.*
+		FROM
+			qihua_createserviceinfo a
+		LEFT JOIN qihua_approvedept b ON a.creatorid = b.UserID
+		AND b.UserID IS NULL
+		WHERE
+			a.compid != a.relationid
+		AND a.serviceid = 201
+	</select>
+	<select id="getNeedDealCreateServiceInfoBeans_count" resultType="int" >
+		SELECT
+			count(1) as num
+		FROM
+			qihua_createserviceinfo a
+		LEFT JOIN qihua_approvedept b ON a.creatorid = b.UserID
+		AND b.UserID IS NULL
+		WHERE
+			a.compid != a.relationid
+		AND a.serviceid = 201
+	</select>
+	
+	<insert id="addApproveDeptBeans" parameterType="com.pzdf.eqihua.ops.bean.ApproveDeptBean">  
+	   INSERT INTO qihua_approvedept
+		(UserID,CompID,deptid,CreateTime)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.userId},#{item.compId},#{item.deptId},now())
+		</foreach>
+     </insert>
+	
+</mapper>

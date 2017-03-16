@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace用于java代码调用时识别指定xml的mapper文件 -->
+
+<mapper namespace="ContentMapper">
+	
+	<select id="getNeedDealNotices" resultType="com.pzdf.eqihua.ops.bean.NeedDealContentBean" >
+		SELECT
+			id as contentId,
+			content,
+			1 as contentType
+		FROM
+			qihua_noticeinfo
+		WHERE
+			content LIKE '%PZDF_MS%'
+	</select>
+	<select id="getNeedDealNotices_count" resultType="int" >
+		SELECT
+			count(1) as num
+		FROM
+			qihua_noticeinfo
+		WHERE
+			content LIKE '%PZDF_MS%'
+	</select>
+	<update id="updateNoticeById" parameterType="com.pzdf.eqihua.ops.bean.NeedDealContentBean" >
+        UPDATE `qihua_noticeinfo`
+        <set>
+            <if test="content !=null">
+                `content` = #{content},
+            </if>
+            UpdateTime = now()
+        </set>
+        WHERE
+        `id` = #{contentId}
+    </update>
+    
+    
+   	<select id="getNeedDealNews" resultType="com.pzdf.eqihua.ops.bean.NeedDealContentBean" >
+		SELECT
+			id as contentId,
+			content,
+			2 as contentType
+		FROM
+			qihua_newsinfo
+		WHERE
+			content LIKE '%PZDF_MS%'
+	</select>
+	<select id="getNeedDealNews_count" resultType="int" >
+		SELECT
+			count(1) as num
+		FROM
+			qihua_newsinfo
+		WHERE
+			content LIKE '%PZDF_MS%'
+	</select>
+	<update id="updateNewsById" parameterType="com.pzdf.eqihua.ops.bean.NeedDealContentBean" >
+        UPDATE `qihua_newsinfo`
+        <set>
+            <if test="content !=null">
+                `content` = #{content},
+            </if>
+            UpdateTime = now()
+        </set>
+        WHERE
+        `id` = #{contentId}
+    </update>
+    
+</mapper>
